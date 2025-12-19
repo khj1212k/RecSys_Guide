@@ -9,8 +9,52 @@ This repository contains a structured educational guide on Recommender Systems, 
 
 Please select your preferred language:
 
-- [🇺🇸 **English Documentation**](./RecSys_Guide_EN/README.md)
-- [🇰🇷 **한국어 가이드 (Korean Documentation)**](./RecSys_Guide_KO/README.md)
+- [🇺🇸 **English**](RecSys_Guide_EN/README.md)
+- [🇰🇷 **한국어 (Korean)**](RecSys_Guide_KO/README.md)
+- [🇨🇳 **简体中文 (Simplified Chinese)**](RecSys_Guide_CN/README.md)
+
+## 📂 Project Structure
+
+```text
+Recommender Systems
+├── 01. Traditional/Classical Models
+│   ├── Collaborative Filtering
+│   │   ├── Memory-based
+│   │   │   ├── User-based CF
+│   │   │   └── Item-based CF
+│   │   └── Model-based
+│   │       ├── Matrix Factorization: SVD, ALS
+│   │       └── Latent Factor Models
+│   └── Content-based Filtering
+│       ├── TF-IDF / Cosine Similarity
+│       └── Profile-based Matching
+│
+├── 02. Machine Learning Era
+│   ├── Hybrid Methods
+│   └── Factorization Machines
+│       ├── FM (Factorization Machines)
+│       └── FFM (Field-aware FM)
+│
+├── 03. Deep Learning Era
+│   ├── MLP-based
+│   │   ├── NCF (Neural Collaborative Filtering)
+│   │   └── Wide & Deep Learning
+│   ├── Sequence/Session-based
+│   │   ├── GRU4Rec
+│   │   └── SASRec / BERT4Rec
+│   ├── Graph-based
+│   │   ├── NGCF (Neural Graph Collaborative Filtering)
+│   │   └── LightGCN
+│   └── AutoEncoder-based
+│       └── AutoRec / CDAE
+│
+└── 04. State-of-the-Art / GenAI
+    ├── LLM-based RS
+    │   ├── LLM4Rec
+    │   └── P5 (Pretrain, Personalized, Prompt, Predict, Recommendation)
+    ├── Multimodal RS: Image/Text Combination
+    └── Generative RS
+```
 
 ---
 
