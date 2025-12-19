@@ -1,0 +1,38 @@
+추천 시스템 (Recommender Systems)
+├── 01. 전통적 모델 (Traditional/Classical)
+│   ├── 협업 필터링 (Collaborative Filtering)
+│   │   ├── 메모리 기반 (Memory-based)
+│   │   │   ├── 사용자 기반 (User-based CF)
+│   │   │   └── 아이템 기반 (Item-based CF)
+│   │   └── 모델 기반 (Model-based)
+│   │       ├── 행렬 분해 (Matrix Factorization: SVD, ALS)
+│   │       └── 잠재 요인 모델 (Latent Factor Models)
+│   └── 콘텐츠 기반 필터링 (Content-based Filtering)
+│       ├── TF-IDF / 코사인 유사도
+│       └── 프로필 기반 매칭
+│
+├── 02. 과도기 및 통계적 모델 (Machine Learning Era)
+│   ├── 하이브리드 모델 (Hybrid Methods)
+│   └── 요인화 기계 (Factorization Machines)
+│       ├── FM (Factorization Machines)
+│       └── FFM (Field-aware FM)
+│
+├── 03. 딥러닝 기반 모델 (Deep Learning Era)
+│   ├── 다층 퍼셉트론 기반 (MLP-based)
+│   │   ├── NCF (Neural Collaborative Filtering)
+│   │   └── Wide & Deep Learning
+│   ├── 순차/세션 기반 (Sequence/Session-based)
+│   │   ├── GRU4Rec (RNN 기반)
+│   │   └── SASRec / BERT4Rec (Transformer/Attention 기반)
+│   ├── 그래프 기반 (Graph-based)
+│   │   ├── NGCF (Neural Graph Collaborative Filtering)
+│   │   └── LightGCN
+│   └── 오토인코더 기반 (AutoEncoder-based)
+│       └── AutoRec / CDAE
+│
+└── 04. 최신 및 생성형 모델 (State-of-the-Art / GenAI)
+    ├── 대규모 언어 모델 기반 (LLM-based RS)
+    │   ├── LLM4Rec
+    │   └── P5 (Pretrain, Personalized, Prompt, Predict, Recommendation)
+    ├── 멀티모달 추천 (Multimodal RS: 이미지/텍스트 결합)
+    └── 생성형 추천 (Generative RS)
