@@ -5,20 +5,17 @@
 
 - [홈](../../README.md)
 - [01. 전통적 모델](../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md) - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # SASRec / BERT4Rec (Transformer-based)
@@ -100,29 +97,62 @@ $$ \text{Attention}(Q, K, V) = \text{softmax}(\frac{QK^T}{\sqrt{d_k}})V $$
 ### 시각적 다이어그램 (SASRec)
 
 ```mermaid
-graph BT
-    subgraph Inputs
-    I1[아이템 1]
-    I2[아이템 2]
-    I3[아이템 3]
+graph TD
+    subgraph "SASRec: Self-Attentive Sequence Processing"
+        direction TB
+
+        %% Inputs
+        subgraph "Sequential Input"
+            I1["Item 1"]
+            I2["Item 2"]
+            I3["Item 3"]
+        end
+
+        %% Embedding Layer
+        subgraph "Embedding + Positional"
+            E1["Emb(I1) + Pos(1)"]
+            E2["Emb(I2) + Pos(2)"]
+            E3["Emb(I3) + Pos(3)"]
+
+            I1 --> E1
+            I2 --> E2
+            I3 --> E3
+        end
+
+        %% Self Attention Block
+        subgraph "Transformer Block (Self-Attention)"
+            direction TB
+            QKV["Query / Key / Value Projection"]
+            AttnMat["⚠️ Attention Weights<br>(Causal Masking Applied)"]
+            Agg["Weighted Sum (Context)"]
+            FFN["Feed Forward Network"]
+
+            E1 --> QKV
+            E2 --> QKV
+            E3 --> QKV
+
+            QKV --> AttnMat
+            AttnMat --> Agg
+            Agg --> FFN
+        end
+
+        %% Outputs
+        subgraph "Prediction (Next Item)"
+            O1["Pred(2): Depends on {1}"]
+            O2["Pred(3): Depends on {1, 2}"]
+            O3["Pred(4): Depends on {1, 2, 3}"]
+
+            FFN -.-> O1
+            FFN -.-> O2
+            FFN --> O3
+        end
     end
 
-    subgraph Transformer_Layer
-    Attn[Self-Attention 블록]
-    I1 --> Attn
-    I2 --> Attn
-    I3 --> Attn
-    end
+    %% Styling
+    style I1 fill:#e1f5fe,stroke:#0277bd
+    style I2 fill:#e1f5fe,stroke:#0277bd
+    style I3 fill:#e1f5fe,stroke:#0277bd
 
-    subgraph Outputs
-    O1[예측 2]
-    O2[예측 3]
-    O3[예측 4]
-    Attn --> O1
-    Attn --> O2
-    Attn --> O3
-    end
-
-    style Attn fill:#cfc,stroke:#333
-    linkStyle 3,4,5 stroke:red,stroke-width:2px;
+    style AttnMat fill:#fff9c4,stroke:#fbc02d
+    style O3 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```

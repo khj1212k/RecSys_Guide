@@ -5,20 +5,17 @@
 
 - [홈](../../README.md)
 - [01. 전통적 모델](../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md) - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # LightGCN
@@ -106,17 +103,65 @@ User A는 Item 1과 연결됨. Item 1은 User B와 연결됨.
 
 ```mermaid
 graph TD
-    subgraph "레이어 집계"
-    L0[레이어 0: 자신]
-    L1[레이어 1: 이웃]
-    L2[레이어 2: 이웃^2]
+    subgraph "LightGCN: Simplified Linear Propagation"
+        direction TB
+
+        %% Inputs
+        subgraph "Layer 0 (Embeddings)"
+            U0["👤 User u (e_u^0)"]
+            I0["🎬 Item i (e_i^0)"]
+        end
+
+        %% Layer 1
+        subgraph "Layer 1 (Direct Neighbors)"
+            L1_Agg["Weighted Sum of Neighbors<br>(Normalized)"]
+            U1["e_u^1 (1-hop)"]
+            I1["e_i^1 (1-hop)"]
+
+            U0 --> L1_Agg
+            I0 --> L1_Agg
+            L1_Agg --> U1
+            L1_Agg --> I1
+        end
+
+        %% Layer 2
+        subgraph "Layer 2 (Neighbor of Neighbor)"
+            L2_Agg["Weighted Sum of Neighbors<br>(Normalized)"]
+            U2["e_u^2 (2-hop)"]
+            I2["e_i^2 (2-hop)"]
+
+            U1 --> L2_Agg
+            I1 --> L2_Agg
+            L2_Agg --> U2
+            L2_Agg --> I2
+        end
+
+        %% Weighted Sum
+        subgraph "Layer Combination (Weighted Sum)"
+            WS_U["∑ α_k • e_u^k"]
+            WS_I["∑ α_k • e_i^k"]
+
+            U0 --> WS_U
+            U1 --> WS_U
+            U2 --> WS_U
+
+            I0 --> WS_I
+            I1 --> WS_I
+            I2 --> WS_I
+        end
+
+        %% Prediction
+        WS_U --- Dot((Dot Product))
+        WS_I --- Dot
+        Dot --> Pred["💡 Prediction"]
     end
 
-    L0 --> Final((가중 합))
-    L1 --> Final
-    L2 --> Final
+    %% Styling
+    style U0 fill:#e1f5fe,stroke:#0277bd
+    style I0 fill:#e1f5fe,stroke:#0277bd
 
-    Final --> Pred[예측]
+    style L1_Agg fill:#fff9c4,stroke:#fbc02d
+    style L2_Agg fill:#fff9c4,stroke:#fbc02d
 
-    style Final fill:#9f9
+    style Pred fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```

@@ -5,20 +5,17 @@
 
 - [홈](../../../README.md)
 - [01. 전통적 모델](../../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../../04_SOTA_GenAI/README.md) - [LLM 기반](../../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # 아이템 기반 협업 필터링 (Item-based CF)
@@ -97,13 +94,31 @@ $$ \hat{r}_{u,i} = \frac{\sum_{j \in L} \text{sim}(i,j) \cdot r*{u,j}}{\sum*{j \
 
 ```mermaid
 graph TD
-    History1[과거 기록: Star Trek (5점)]
-    History2[과거 기록: Gravity (4점)]
-    Target[타겟 아이템: Star Wars]
+    subgraph "Process: Item-Based Prediction"
+        direction TB
 
-    Target -- 유사도 0.9 --> History1
-    Target -- 유사도 0.7 --> History2
+        %% Input
+        TargetItem["🎬 타겟 아이템: Star Wars"]
 
-    History1 --> Pred[예측 점수]
-    History2 --> Pred
+        %% Similarity Loop
+        TargetItem --> SimCheck["📏 아이템 간 유사도 계산 (Cosine Similarity)"]
+
+        %% Historical Data Comparison
+        SimCheck -- "유사함 (Sim: 0.9)" --> Hist1["📺 과거 시청: Star Trek (5점)"]
+        SimCheck -- "유사함 (Sim: 0.7)" --> Hist2["📺 과거 시청: Gravity (4점)"]
+        SimCheck -- "다름 (Sim: 0.1)" --> Hist3["📺 과거 시청: Romance (1점)"]
+
+        %% Weighted Calculation
+        Hist1 --> Calc["🧮 가중 평균 계산<br>(Sim × Rating) / ∑Sim"]
+        Hist2 --> Calc
+        Hist3 --> Calc
+
+        %% Math Detail
+        Calc -- " (0.9×5 + 0.7×4 + 0.1×1) / (0.9+0.7+0.1) " --> Result["🎯 예측 평점: 4.35점<br>(강력 추천)"]
+    end
+
+    %% Styling
+    style TargetItem fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    style Result fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style Calc fill:#fff3e0,stroke:#ef6c00
 ```

@@ -5,20 +5,17 @@
 
 - [홈](../../README.md)
 - [01. 전통적 모델](../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md) - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # 신경망 그래프 협업 필터링 (Neural Graph Collaborative Filtering, NGCF)
@@ -73,7 +70,7 @@
 ### C. 예측 (Prediction)
 
 모든 레이어의 임베딩을 결합(Concatenate)하여 최종 표현을 만듭니다:
-$$ e_u^* = [e_u^{(0)}, e_u^{(1)}, ..., e_u^{(L)}] $$
+$$ e_u^\* = [e_u^{(0)}, e_u^{(1)}, ..., e_u^{(L)}] $$
 그 후 내적(Dot Product)을 수행합니다.
 
 ---
@@ -107,29 +104,54 @@ $$ e_u^* = [e_u^{(0)}, e_u^{(1)}, ..., e_u^{(L)}] $$
 
 ```mermaid
 graph TD
-    subgraph "Layer 0 (초기값)"
-    A0[User A]
-    I10[Item 1]
-    B0[User B]
-    I20[Item 2]
+    subgraph "NGCF: Message Passing & Propagation"
+        direction TB
+
+        %% High-Level Flow
+        subgraph "Initial Embeddings (Layer 0)"
+            U0["👤 User u (e_u^0)"]
+            I0["🎬 Item i (e_i^0)"]
+        end
+
+        %% Layer 1 Propagation
+        subgraph "Layer 1: Bi-Interaction Aggregation"
+            direction TB
+            Msg_I_to_U["📨 Message i→u<br>W1•e_i + W2•(e_i ⊙ e_u)"]
+            Msg_U_to_I["📨 Message u→i<br>W1•e_u + W2•(e_u ⊙ e_i)"]
+
+            U0 --> Msg_U_to_I
+            I0 --> Msg_U_to_I
+
+            I0 --> Msg_I_to_U
+            U0 --> Msg_I_to_U
+
+            Agg1_U["Agg User: LeakyReLU(Self + ∑Neighbor)"]
+            Agg1_I["Agg Item: LeakyReLU(Self + ∑Neighbor)"]
+
+            U0 --> Agg1_U
+            Msg_I_to_U --> Agg1_U
+
+            I0 --> Agg1_I
+            Msg_U_to_I --> Agg1_I
+        end
+
+        %% Output Embedding
+        subgraph "Final Concatenation"
+            Final_U["🔗 Output User Vector<br>[e_u^0 || e_u^1 || ... ]"]
+        end
+
+        U0 -.-> Final_U
+        Agg1_U --> Final_U
+
+        Final_U --> Pred["💡 Prediction (Dot Product)"]
     end
 
-    subgraph "Layer 1 (집계)"
-    A1[User A+]
-    I11[Item 1+]
-    B1[User B+]
-    I10 --> A1
-    B0 --> I11
-    A0 --> I11
-    I20 --> B1
-    I10 --> B1
-    end
+    %% Styling
+    style U0 fill:#e1f5fe,stroke:#0277bd
+    style I0 fill:#e1f5fe,stroke:#0277bd
 
-    subgraph "Layer 2 (고차원)"
-    A2[User A++]
-    I11 --> A2
-    note[A2는 이제 B와 I2의 정보를 포함함]
-    end
+    style Msg_I_to_U fill:#fff9c4,stroke:#fbc02d,stroke-dasharray: 5 5
+    style Msg_U_to_I fill:#fff9c4,stroke:#fbc02d,stroke-dasharray: 5 5
 
-    style note fill:#ff9
+    style Final_U fill:#e8f5e9,stroke:#2e7d32
 ```

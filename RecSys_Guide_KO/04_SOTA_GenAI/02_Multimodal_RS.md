@@ -5,20 +5,17 @@
 
 - [홈](../README.md)
 - [01. 전통적 모델](../01_Traditional_Models/README.md)
-    - [협업 필터링](../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../04_SOTA_GenAI/README.md) - [LLM 기반](../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # 멀티모달 추천 (Multimodal RS)
@@ -93,33 +90,65 @@
 
 ```mermaid
 graph TD
-    Item[아이템: 새 드레스]
-    Img[이미지]
-    Txt[텍스트 설명]
-    ID[ID: #999]
+    subgraph "Multimodal Recommender Architecture"
+        direction TB
 
-    Item --> Img
-    Item --> Txt
-    Item --> ID
+        %% Raw Inputs
+        subgraph "Raw Item Data"
+            ImgRaw["🖼️ Image<br>(Pixels)"]
+            TxtRaw["📝 Text<br>(Description)"]
+            IDRaw["🆔 Item ID<br>(Integer)"]
+        end
 
-    subgraph Encoders
-    CNN[ResNet]
-    BERT[BERT]
-    Emb[임베딩 테이블]
+        %% Feature Extraction
+        subgraph "Feature Encoders (Pre-trained)"
+            CNN["📷 Visual Encoder<br>(ResNet / ViT)"]
+            BERT["🔤 Text Encoder<br>(BERT / RoBERTa)"]
+            EmbTable["🔑 ID Lookup"]
+
+            ImgRaw --> CNN
+            TxtRaw --> BERT
+            IDRaw --> EmbTable
+        end
+
+        %% Latent Vectors
+        subgraph "Latent Representation"
+            Vec_V["Vector v_vis"]
+            Vec_T["Vector v_text"]
+            Vec_I["Vector v_id"]
+
+            CNN --> Vec_V
+            BERT --> Vec_T
+            EmbTable --> Vec_I
+        end
+
+        %% Fusion
+        subgraph "Fusion Layer (Late Fusion)"
+            Concat((Concatenate))
+            MLP["🧠 Fusion MLP<br>(Dense Layers)"]
+            FinalVec["✨ Unified Item Vector"]
+
+            Vec_V --> Concat
+            Vec_T --> Concat
+            Vec_I --> Concat
+
+            Concat --> MLP --> FinalVec
+        end
+
+        %% Prediction
+        User["👤 User Vector"]
+        FinalVec --- Dot((Inner Product))
+        User --- Dot
+        Dot --> Score["🔥 Preference Score"]
     end
 
-    Img --> CNN --> V_vis
-    Txt --> BERT --> V_txt
-    ID --> Emb --> V_id
+    %% Styling
+    style ImgRaw fill:#e1f5fe,stroke:#0277bd
+    style TxtRaw fill:#e1f5fe,stroke:#0277bd
+    style IDRaw fill:#e1f5fe,stroke:#0277bd
 
-    subgraph Fusion
-    Concat((결합))
-    MLP[MLP Mixer]
-    end
+    style CNN fill:#fff9c4,stroke:#fbc02d
+    style BERT fill:#fff9c4,stroke:#fbc02d
 
-    V_vis --> Concat
-    V_txt --> Concat
-    V_id --> Concat
-
-    Concat --> MLP --> Final[최종 아이템 벡터]
+    style FinalVec fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```

@@ -5,20 +5,17 @@
 
 - [홈](../../../README.md)
 - [01. 전통적 모델](../../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../../04_SOTA_GenAI/README.md) - [LLM 기반](../../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # 사용자 기반 협업 필터링 (User-based CF)
@@ -75,7 +72,7 @@
 
 이웃들의 평점을 가중 평균하여 아이템 $i$에 대한 평점 $\hat{r}_{u,i}$를 예측합니다.
 $$ \hat{r}_{u,i} = \bar{r}\_u + \frac{\sum_{v \in N*u} \text{sim}(u,v) \times (r*{v,i} - \bar{r}_v)}{\sum_{v \in N_u} |\text{sim}(u,v)|} $$
-*(참고: $\bar{r}_u$를 다시 더해줌으로써 타겟 사용자의 평점 스케일에 맞게 예측값을 정규화합니다.)*
+*(참고: $\bar{r}_u$를 다시 더해줌으로써 타겟 사용자의 평점 스케일에 맞게 예측값을 정규화합니다.)\*
 
 ---
 
@@ -117,18 +114,39 @@ $$ \hat{r}_{u,i} = \bar{r}\_u + \frac{\sum_{v \in N*u} \text{sim}(u,v) \times (r
 
 ```mermaid
 graph TD
-    Target[타겟 사용자: Alice]
-    N1[이웃: Bob]
-    N2[이웃: Dave]
+    subgraph "Process: User-Based Prediction"
 
-    Target -- 높은 유사도 (0.95) --> N1
-    Target -- 높은 유사도 (0.90) --> N2
+        direction TB
 
-    N1 -- 평점 5 --> Item[The Matrix]
-    N2 -- 평가 안 함 --> Item
+        %% Data Input
+        Target["👤 타겟 사용자: Alice"]
+        SimCalc["📏 유사도 계산 (Pearson Correlation)"]
 
-    Item -.->|가중 평균 예측| Target
+        %% Similarity Calculation
+        Target --> SimCalc
+        OtherUsers["👥 다른 사용자들 (Bob, Carol, Dave...)"] --> SimCalc
 
-    style Target fill:#f9f,stroke:#333,stroke-width:2px
-    style Item fill:#bbf,stroke:#333,stroke-width:2px
+        %% Neighbor Selection
+        SimCalc --> Neighbors["🔍 이웃 선정 (Top-K Similar Users)"]
+
+        %% High Sim Example
+        Neighbors -- "유사도 높음 (0.95)" --> N1["👤 Bob (평점: 5점)"]
+        Neighbors -- "유사도 높음 (0.90)" --> N2["👤 Dave (평점: ??)"]
+        Neighbors -. "유사도 낮음/음수" .-x Exclude["🚫 Carol (제외됨)"]
+
+        %% Prediction Logic
+        N1 --> WeightedSum["∑ 가중 합계 계산"]
+        N2 -- "평가 데이터 없음 (무시)" --> WeightedSum
+
+        %% Final Calc
+        WeightedSum --> PredCalc["🧮 예측 평점 계산<br>(평균 + 가중치 편차)"]
+        PredCalc --> Result["🎯 예측 결과: 4.73점 (추천!)"]
+
+    end
+
+    %% Styling
+    style Target fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    style Result fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 5 5
+    style SimCalc fill:#fff9c4,stroke:#fbc02d
+    style WeightedSum fill:#fff9c4,stroke:#fbc02d
 ```

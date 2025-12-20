@@ -5,20 +5,17 @@
 
 - [홈](../../README.md)
 - [01. 전통적 모델](../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md) - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # LLM4Rec
@@ -104,21 +101,53 @@ Response: "더 배트맨 (2022)"을 추천합니다.
 
 ```mermaid
 graph TD
-    History[기록: 다크 나이트, 조커]
-    Prompt[프롬프트 템플릿]
+    subgraph "LLM4Rec Pipeline"
+        direction TB
 
-    History --> Prompt
+        %% Data Preparation
+        subgraph "1. Data Preparation"
+            History["📜 User History<br>[Dark Knight, Joker]"]
+            Candidates["📦 Candidates (Optional)<br>[Batman, Superman, ...]"]
+        end
 
-    subgraph LLM_BlackBox
-    Tokenize
-    Transformer_Layers
-    Next_Token_Pred
+        %% Prompt Engineering
+        subgraph "2. Prompt Engineering"
+            Template["📝 Template<br>'Act as a movie expert...'"]
+            Construct["🛠️ Prompt Construction<br>(Inject History & Candidates)"]
+
+            History --> Construct
+            Candidates --> Construct
+            Template --> Construct
+
+            FinalPrompt["📄 Final Prompt<br>'User watched X, Y... Recommend one.'"]
+            Construct --> FinalPrompt
+        end
+
+        %% LLM Inference
+        subgraph "3. LLM Inference"
+            Tokenizer["🔤 Tokenizer<br>(Text → IDs)"]
+            Model["🧠 LLM (Transformer)<br>Self-Attention & Feed-Forward"]
+            Logits["📊 Next Token Probabilities"]
+
+            FinalPrompt --> Tokenizer
+            Tokenizer --> Model
+            Model --> Logits
+        end
+
+        %% Output
+        subgraph "4. Response Generation"
+            Sampling["🎲 Sampling / Greedy"]
+            TextDetoken["🔠 De-tokenizer"]
+            Parsed["💡 Parsed Recommendation<br>'The Batman'"]
+
+            Logits --> Sampling
+            Sampling --> TextDetoken
+            TextDetoken --> Parsed
+        end
     end
 
-    Prompt --> Tokenize
-    Transformer_Layers --> Next_Token_Pred
-
-    Next_Token_Pred --> Output["추천: 더 배트맨"]
-
-    style LLM_BlackBox fill:#eee,stroke:#333
+    %% Styling
+    style FinalPrompt fill:#fff9c4,stroke:#fbc02d
+    style Model fill:#e1bee7,stroke:#8e24aa
+    style Parsed fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```

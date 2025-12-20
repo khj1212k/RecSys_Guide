@@ -5,20 +5,17 @@
 
 - [홈](../../README.md)
 - [01. 전통적 모델](../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md) - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # Wide & Deep Learning
@@ -107,28 +104,56 @@ $$ P(Y=1|x) = \sigma( \underbrace{w*{wide}^T [x, \phi(x)]}*{\text{Wide}} + \unde
 
 ```mermaid
 graph TD
-    subgraph Inputs
-    SF[Sparse Features]
-    DF[Dense/Embedding Features]
+    subgraph "Wide & Deep Architecture"
+        direction TB
+
+        %% Inputs
+        subgraph "Raw Inputs"
+            Sparse["🧊 Sparse Features<br>(App ID, Impression)"]
+            Dense["🧱 Dense Features<br>(Age, #Installs)"]
+        end
+
+        %% Wide Component
+        subgraph "Wide Component (Memorization)"
+            CrossProd["✖️ Cross-Product Transformation<br>(User_Installs=True AND App_Type=Game)"]
+            Wide_Linear["📏 Linear Model<br>(w_wide • x + b)"]
+
+            Sparse --> CrossProd
+            CrossProd --> Wide_Linear
+            Sparse --> Wide_Linear
+        end
+
+        %% Deep Component
+        subgraph "Deep Component (Generalization)"
+            Embed["🔑 Dense Embeddings"]
+            Concat_Deep["🔗 Concatenate"]
+            Hidden1["🧠 RelU Hidden Layer 1"]
+            Hidden2["🧠 RelU Hidden Layer 2"]
+            Dense_Out["Deep Output Vector"]
+
+            Sparse -.-> Embed
+            Dense --> Concat_Deep
+            Embed --> Concat_Deep
+            Concat_Deep --> Hidden1 --> Hidden2 --> Dense_Out
+        end
+
+        %% Joint Output
+        Wide_Linear --> Joint((➕ Sum))
+        Dense_Out --> Joint
+
+        Joint --> Sigmoid["📉 Activation (Sigmoid)"]
+        Sigmoid --> Pred["💡 Prediction P(Y=1|x)"]
     end
 
-    subgraph Wide_Part
-    CP[Cross Product 변환]
-    LR[선형 모델]
-    SF --> CP --> LR
-    end
+    %% Styling
+    style Sparse fill:#e3f2fd,stroke:#1565c0
+    style Dense fill:#e3f2fd,stroke:#1565c0
 
-    subgraph Deep_Part
-    Emb[임베딩]
-    Hidden[은닉층: ReLU]
-    DF --> Emb --> Hidden
-    end
+    style Wide_Linear fill:#fff9c4,stroke:#fbc02d
+    style CrossProd fill:#fff9c4,stroke:#fbc02d,stroke-dasharray: 5 5
 
-    LR --> Sigmoid((시그모이드))
-    Hidden --> Sigmoid
+    style Hidden1 fill:#e1bee7,stroke:#8e24aa
+    style Hidden2 fill:#e1bee7,stroke:#8e24aa
 
-    Sigmoid --> Out[예측]
-
-    linkStyle 2 stroke:green,stroke-width:2px;
-    linkStyle 5 stroke:blue,stroke-width:2px;
+    style Pred fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```

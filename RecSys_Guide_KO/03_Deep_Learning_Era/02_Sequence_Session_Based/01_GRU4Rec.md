@@ -5,20 +5,17 @@
 
 - [홈](../../README.md)
 - [01. 전통적 모델](../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md) - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # GRU4Rec (RNN-based)
@@ -98,19 +95,50 @@ $$ L = - \sum \log(\sigma(\hat{r}_{pos} - \hat{r}_{neg})) $$
 
 ```mermaid
 graph LR
-    subgraph Time_Step_1
-    I1[입력: 카메라] --> Emb1[Emb]
-    Emb1 --> GRU1[GRU 셀]
-    State0[초기 상태] --> GRU1
-    GRU1 --> Pred1[예측: 메모리 카드?]
+    subgraph "Session-based RNN (GRU4Rec)"
+        direction LR
+
+        %% Time Steps
+        subgraph "Time Step t-1"
+            Input1["🖱️ Input: Camera<br>(t=1)"]
+            GRU1["🔄 GRU Unit"]
+            Hidden1["🧠 Hidden State h₁"]
+            Pred1["❓ Pred: Memory Card?"]
+        end
+
+        subgraph "Time Step t"
+            Input2["🖱️ Input: Memory Card<br>(t=2)"]
+            GRU2["🔄 GRU Unit"]
+            Hidden2["🧠 Hidden State h₂"]
+            Pred2["❓ Pred: Case?"]
+        end
+
+        %% Connections t-1
+        Input1 --> GRU1
+        GRU1 --> Hidden1
+        Hidden1 --> Pred1
+
+        %% Recurrent Connection
+        Hidden1 -.-> |"Pass Context h₁"| GRU2
+
+        %% Connections t
+        Input2 --> GRU2
+        GRU2 --> Hidden2
+        Hidden2 --> Pred2
+
+        %% Final Prediction
+        Pred2 --> Output["🎯 Recommendation:<br>Camera Case"]
     end
 
-    subgraph Time_Step_2
-    I2[입력: 메모리 카드] --> Emb2[Emb]
-    Emb2 --> GRU2[GRU 셀]
-    GRU1 -.->|은닉 상태 h1| GRU2
-    GRU2 --> Pred2[예측: 카메라 가방?]
-    end
+    %% Styling
+    style Input1 fill:#e1f5fe,stroke:#0277bd
+    style Input2 fill:#e1f5fe,stroke:#0277bd
 
-    style Pred2 fill:#f96,stroke:#333
+    style GRU1 fill:#fff9c4,stroke:#fbc02d
+    style GRU2 fill:#fff9c4,stroke:#fbc02d
+
+    style Hidden1 fill:#e1bee7,stroke:#8e24aa
+    style Hidden2 fill:#e1bee7,stroke:#8e24aa
+
+    style Output fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```

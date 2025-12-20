@@ -5,20 +5,17 @@
 
 - [홈](../../README.md)
 - [01. 전통적 모델](../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md) - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # 필드 인식 요인화 기계 (Field-aware Factorization Machines, FFM)
@@ -107,23 +104,60 @@ $$ \hat{y}(x) = w*0 + \sum*{i=1}^n w*i x_i + \sum*{i=1}^n \sum*{j=i+1}^n \langle
 
 ```mermaid
 graph TD
-    Alice[특징: Alice]
-    ESPN[특징: ESPN]
-    Site[특징: News Site]
+    subgraph "FFM: Field-aware Interaction"
+        direction TB
 
-    subgraph FFM_메커니즘
-    Alice -- V_Alice_Pub 사용 --> Interact1((x))
-    ESPN -- V_ESPN_User 사용 --> Interact1
+        %% Features
+        subgraph "Active Features (Non-zero)"
+            F_Alice["👤 Feat: Alice<br>(Field: User)"]
+            F_ESPN["📰 Feat: ESPN<br>(Field: Publisher)"]
+            F_News["🌐 Feat: NewsSite<br>(Field: Context)"]
+        end
 
-    Alice -- V_Alice_Ctx 사용 --> Interact2((x))
-    Site -- V_Site_User 사용 --> Interact2
+        %% Interactions
+        subgraph "Field-Specific Vector Selection"
+            direction TB
 
-    ESPN -- V_ESPN_Ctx 사용 --> Interact3((x))
-    Site -- V_Site_Pub 사용 --> Interact3
+            %% Pair 1
+            Int1_Label["Interaction 1:<br>Alice (User) ✖️ ESPN (Publisher)"]
+            V_Alice_Pub["v_{Alice, Publisher}"]
+            V_ESPN_User["v_{ESPN, User}"]
+
+            F_Alice -.-> |"Use User's vector for Publisher field"| V_Alice_Pub
+            F_ESPN -.-> |"Use Publisher's vector for User field"| V_ESPN_User
+
+            V_Alice_Pub --- Dot1((Dot Product))
+            V_ESPN_User --- Dot1
+            Dot1 --> Int1_Label
+
+            %% Pair 2 (Simplified Visual)
+            Int2_Label["Interaction 2:<br>Alice (User) ✖️ NewsSite (Context)"]
+            V_Alice_Ctx["v_{Alice, Context}"]
+            V_News_User["v_{News, User}"]
+
+            F_Alice -.-> V_Alice_Ctx
+            F_News -.-> V_News_User
+
+            V_Alice_Ctx --- Dot2((Dot Product))
+            V_News_User --- Dot2
+            Dot2 --> Int2_Label
+        end
+
+        %% Summation
+        Int1_Label --> Sum["➕ Weighted Sum of all interactions"]
+        Int2_Label --> Sum
+
+        Sum --> Out["📤 Prediction"]
     end
 
-    Interact1 --> Sum((합산))
-    Interact2 --> Sum
-    Interact3 --> Sum
-    Sum --> Result
+    %% Styling
+    style F_Alice fill:#e1f5fe,stroke:#0277bd
+    style F_ESPN fill:#e1f5fe,stroke:#0277bd
+    style F_News fill:#e1f5fe,stroke:#0277bd
+
+    style Int1_Label fill:#e1bee7,stroke:#8e24aa
+    style Int2_Label fill:#e1bee7,stroke:#8e24aa
+
+    style V_Alice_Pub fill:#fff9c4,stroke:#fbc02d,stroke-dasharray: 5 5
+    style V_ESPN_User fill:#fff9c4,stroke:#fbc02d,stroke-dasharray: 5 5
 ```

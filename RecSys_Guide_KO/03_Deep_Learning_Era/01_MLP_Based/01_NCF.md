@@ -5,20 +5,17 @@
 
 - [홈](../../README.md)
 - [01. 전통적 모델](../../01_Traditional_Models/README.md)
-    - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../../04_SOTA_GenAI/README.md) - [LLM 기반](../../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # 신경망 협업 필터링 (Neural Collaborative Filtering, NCF)
@@ -106,36 +103,65 @@ NCF는 보통 두 개의 병렬 경로(Branch)를 가진 뒤 마지막에 합쳐
 
 ```mermaid
 graph TD
-    subgraph Inputs
-    U[사용자 ID]
-    I[아이템 ID]
+    subgraph "Neural Collaborative Filtering (NeuMF)"
+        direction TB
+
+        %% Inputs
+        subgraph "Input Layer"
+            User["👤 User (One-Hot)"]
+            Item["🎬 Item (One-Hot)"]
+        end
+
+        %% Embeddings
+        subgraph "Embedding Layer"
+            EU_GMF["GMF User Embed<br>(Dim=K)"]
+            EI_GMF["GMF Item Embed<br>(Dim=K)"]
+
+            EU_MLP["MLP User Embed<br>(Dim=2K)"]
+            EI_MLP["MLP Item Embed<br>(Dim=2K)"]
+        end
+
+        User --> EU_GMF
+        Item --> EI_GMF
+        User --> EU_MLP
+        Item --> EI_MLP
+
+        %% GMF Path
+        subgraph "GMF Path (Generalized MF)"
+            EU_GMF --- GMF_Op((Element-wise<br>Product))
+            EI_GMF --- GMF_Op
+            GMF_Op --> GMF_Vec["GMF Vector"]
+        end
+
+        %% MLP Path
+        subgraph "MLP Path (Deep Learning)"
+            EU_MLP --- Concat((Concat))
+            EI_MLP --- Concat
+            Concat --> MLP_In["Concat Vector"]
+            MLP_In --> L1["Dense Layer 1<br>(ReLU)"]
+            L1 --> L2["Dense Layer 2<br>(ReLU)"]
+            L2 --> L3["Dense Layer 3<br>(ReLU)"]
+            L3 --> MLP_Vec["MLP Vector"]
+        end
+
+        %% Fusion
+        subgraph "NeuMF Layer"
+            GMF_Vec --- Fusion((Concat))
+            MLP_Vec --- Fusion
+            Fusion --> NeuMF_Vec["Fusion Vector"]
+            NeuMF_Vec --> Output["🚀 Output Layer<br>(Sigmoid)"]
+        end
+
+        Output --> Pred["🔮 Predicted Probability"]
     end
 
-    subgraph Embeddings
-    EU[User 임베딩]
-    EI[Item 임베딩]
-    U --> EU
-    I --> EI
-    end
+    %% Styling
+    style User fill:#e1f5fe,stroke:#0277bd
+    style Item fill:#e1f5fe,stroke:#0277bd
 
-    subgraph GMF_Path
-    GMF((요소별 곱))
-    EU --> GMF
-    EI --> GMF
-    end
+    style GMF_Op fill:#fff9c4,stroke:#fbc02d
+    style Concat fill:#e1bee7,stroke:#8e24aa
+    style Fusion fill:#ffccbc,stroke:#ff5722
 
-    subgraph MLP_Path
-    CAT[결합 Concatenate]
-    L1[Dense Layer 1]
-    L2[Dense Layer 2]
-    EU --> CAT
-    EI --> CAT
-    CAT --> L1 --> L2
-    end
-
-    GMF --> Fusion
-    L2 --> Fusion[결합]
-
-    Fusion --> Output((시그모이드))
-    Output --> Score
+    style Pred fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```

@@ -5,20 +5,17 @@
 
 - [홈](../README.md)
 - [01. 전통적 모델](../01_Traditional_Models/README.md)
-    - [협업 필터링](../01_Traditional_Models/01_Collaborative_Filtering/README.md)
-        - [메모리 기반](../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
-        - [모델 기반](../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
-    - [콘텐츠 기반 필터링](../01_Traditional_Models/02_Content_Based_Filtering/README.md)
+  - [협업 필터링](../01_Traditional_Models/01_Collaborative_Filtering/README.md)
+    - [메모리 기반](../01_Traditional_Models/01_Collaborative_Filtering/01_Memory_Based/README.md)
+    - [모델 기반](../01_Traditional_Models/01_Collaborative_Filtering/02_Model_Based/README.md)
+  - [콘텐츠 기반 필터링](../01_Traditional_Models/02_Content_Based_Filtering/README.md)
 - [02. 과도기 및 통계적 모델](../02_Machine_Learning_Era/README.md)
 - [03. 딥러닝 기반 모델](../03_Deep_Learning_Era/README.md)
-    - [MLP 기반](../03_Deep_Learning_Era/01_MLP_Based/README.md)
-    - [순차/세션 기반](../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
-    - [그래프 기반](../03_Deep_Learning_Era/03_Graph_Based/README.md)
-    - [오토인코더 기반](../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
-- [04. 최신 및 생성형 모델](../04_SOTA_GenAI/README.md)
-    - [LLM 기반](../04_SOTA_GenAI/01_LLM_Based/README.md)
-    - [멀티모달 추천](../04_SOTA_GenAI/02_Multimodal_RS.md)
-    - [생성형 추천](../04_SOTA_GenAI/03_Generative_RS.md)
+  - [MLP 기반](../03_Deep_Learning_Era/01_MLP_Based/README.md)
+  - [순차/세션 기반](../03_Deep_Learning_Era/02_Sequence_Session_Based/README.md)
+  - [그래프 기반](../03_Deep_Learning_Era/03_Graph_Based/README.md)
+  - [오토인코더 기반](../03_Deep_Learning_Era/04_AutoEncoder_Based/README.md)
+- [04. 최신 및 생성형 모델](../04_SOTA_GenAI/README.md) - [LLM 기반](../04_SOTA_GenAI/01_LLM_Based/README.md) - [멀티모달 추천](../04_SOTA_GenAI/02_Multimodal_RS.md) - [생성형 추천](../04_SOTA_GenAI/03_Generative_RS.md)
 </details>
 
 # 하이브리드 모델 (Hybrid Models)
@@ -110,8 +107,8 @@ graph TD
     Check -- 신규 유저 --> CB[Content-Based System]
     Check -- 헤비 유저 --> CF[Collaborative Filtering]
 
-    CB --> W1[가중치: 0.2]
-    CF --> W2[가중치: 0.8]
+    CB --> W1["가중치: 0.2"]
+    CF --> W2["가중치: 0.8"]
 
     W1 --> Agg((결합))
     W2 --> Agg
